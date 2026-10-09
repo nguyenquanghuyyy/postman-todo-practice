@@ -1,0 +1,345 @@
+{
+  "info": {
+    "name": "Todo API - Postman Practice",
+    "description": "Chay 'node server.js' truoc, sau do Run collection. 8 request: GET, query, POST, bien, PATCH, negative test, DELETE.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "1. GET - Lay danh sach todo",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status code la 200', function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "pm.test('Tra ve mang co it nhat 3 todo', function () {",
+              "    const data = pm.response.json();",
+              "    pm.expect(data).to.be.an('array');",
+              "    pm.expect(data.length).to.be.at.least(3);",
+              "});",
+              "pm.test('Moi todo co id, title, completed', function () {",
+              "    pm.response.json().forEach(function (t) {",
+              "        pm.expect(t).to.have.all.keys('id', 'title', 'completed');",
+              "    });",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "description": "Lay toan bo todo. Day la request GET co ban nhat.",
+        "url": {
+          "raw": "{{baseUrl}}/todos",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "todos"
+          ]
+        }
+      }
+    },
+    {
+      "name": "2. GET - Loc bang query parameter",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status code la 200', function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "pm.test('Tat ca todo tra ve deu completed = true', function () {",
+              "    const data = pm.response.json();",
+              "    pm.expect(data.length).to.be.above(0);",
+              "    data.forEach(function (t) { pm.expect(t.completed).to.eql(true); });",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "description": "Query parameter: ?completed=true",
+        "url": {
+          "raw": "{{baseUrl}}/todos?completed=true",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "todos"
+          ],
+          "query": [
+            {
+              "key": "completed",
+              "value": "true"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "3. POST - Tao todo moi",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status code la 201 Created', function () {",
+              "    pm.response.to.have.status(201);",
+              "});",
+              "pm.test('Todo moi dung du lieu da gui', function () {",
+              "    const data = pm.response.json();",
+              "    pm.expect(data.title).to.eql('Lam bai thuc hanh Postman');",
+              "    pm.expect(data.completed).to.eql(false);",
+              "    pm.expect(data).to.have.property('id');",
+              "});",
+              "// Luu id de cac request sau dung lai",
+              "pm.collectionVariables.set('newId', pm.response.json().id);"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "description": "Gui body JSON. Test luu id moi vao bien newId.",
+        "url": {
+          "raw": "{{baseUrl}}/todos",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "todos"
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"title\": \"Lam bai thuc hanh Postman\",\n  \"completed\": false\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "4. GET - Lay todo vua tao (dung bien)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status code la 200', function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "pm.test('id khop voi bien newId', function () {",
+              "    pm.expect(pm.response.json().id).to.eql(Number(pm.collectionVariables.get('newId')));",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "description": "URL dung bien {{newId}} duoc gan o request 3.",
+        "url": {
+          "raw": "{{baseUrl}}/todos/{{newId}}",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "todos",
+            "{{newId}}"
+          ]
+        }
+      }
+    },
+    {
+      "name": "5. PATCH - Danh dau hoan thanh",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status code la 200', function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "pm.test('completed da chuyen thanh true, title giu nguyen', function () {",
+              "    const data = pm.response.json();",
+              "    pm.expect(data.completed).to.eql(true);",
+              "    pm.expect(data.title).to.eql('Lam bai thuc hanh Postman');",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "PATCH",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "description": "",
+        "url": {
+          "raw": "{{baseUrl}}/todos/{{newId}}",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "todos",
+            "{{newId}}"
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"completed\": true\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "6. POST - Du lieu sai (negative test)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Thieu title thi server tra ve 400', function () {",
+              "    pm.response.to.have.status(400);",
+              "});",
+              "pm.test('Co thong bao loi', function () {",
+              "    pm.expect(pm.response.json()).to.have.property('error');",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "description": "Kiem thu truong hop loi: khong gui title.",
+        "url": {
+          "raw": "{{baseUrl}}/todos",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "todos"
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"completed\": false\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "7. DELETE - Xoa todo",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status code la 200', function () {",
+              "    pm.response.to.have.status(200);",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "description": "",
+        "url": {
+          "raw": "{{baseUrl}}/todos/{{newId}}",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "todos",
+            "{{newId}}"
+          ]
+        }
+      }
+    },
+    {
+      "name": "8. GET - Todo da xoa phai tra ve 404",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status code la 404 Not Found', function () {",
+              "    pm.response.to.have.status(404);",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "description": "Xac nhan todo da bi xoa that su.",
+        "url": {
+          "raw": "{{baseUrl}}/todos/{{newId}}",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "todos",
+            "{{newId}}"
+          ]
+        }
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3000"
+    },
+    {
+      "key": "newId",
+      "value": ""
+    }
+  ]
+}
